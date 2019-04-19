@@ -1,0 +1,19 @@
+<h1>Looking for a national park?</h1>
+<h1>Type in a park to find a description</h1>
+<h1>Please enter the name of a park</h1>
+<form>
+  <!-- State:<br> -->
+  <input type="text" name="park">
+  <button type="button">Find Description</button>
+
+  <button onclick="goBack()">Go Back</button>
+
+<div>
+<!-- <script>
+function goBack() {
+  window.history.back();
+}
+</script> -->
+
+  <!-- <button type="button" onclick="alert('Park ')">Save</button> -->
+<a href="{{ url_for('parks_index')}}">Return to home page</a>
