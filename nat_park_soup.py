@@ -3,22 +3,21 @@ from bs4 import BeautifulSoup
 from final_advanced_expiry_caching import Cache
 import csv
 # import sqlite3
-
+###Right file
 #####TO DO WRITE LINE OF CODE TO FEED LIST TO DATABASE / CREATE TUPLES
 ###MIGHT NEED TO CHANGE THINGS INTO OBJECTS
 
 START_URL = "https://www.nps.gov/index.htm"
 FILENAME = "sample_park_cache.json"
-# url = "https://www.nps.gov/index.htm"
-# So I can use 1 (one) instance of the Cache tool -- just one for my whole program, even though I'll get data from multiple places
-PROGRAM_CACHE = Cache(FILENAME)# kind of a constance, creating an instance where ammendments could be made
+
+PROGRAM_CACHE = Cache(FILENAME)
 
 
 def access_page_data(url):
     data = PROGRAM_CACHE.get(url)# get data from the url # get tool will return NONE if it doesn't exist
     if not data:
         data = requests.get(url).text # if data is not there put it there
-        PROGRAM_CACHE.set(url, data) # default here with the Cache.set tool is that it will expire in 7 days, which is probs fine, but something to explore # first put identifier and then what data is associated with the url
+        PROGRAM_CACHE.set(url, data)
     return data
 
 #######
@@ -37,13 +36,11 @@ all_links = list_of_topics.find_all('a')
 #a variable with all the links
 
 path = "https://www.nps.gov/"
-# for link in all_links:
-#     print(path + link['href'])
-#add url to links somehow
+
 
 # want an istance that represents all the links
 # path = "https://www.nps.gov/"
-topics_pages = [] # gotta get all the data in BeautifulSoup objects to work with...
+topics_pages = []
 for l in all_links:
     page_data = access_page_data(path + l['href']) # maybe add path?
     soup_of_page = BeautifulSoup(page_data, features="html.parser")#.encode("unicode-escape")
@@ -51,22 +48,61 @@ for l in all_links:
     # print(soup_of_page)
     topics_pages.append(soup_of_page)
     # print(topics_pages)
+##### CAT CODE
+nowhere = []
+everything = []
+for allstuff in topics_pages:
+    all_obj = allstuff.find("li",{"class":"clearfix"})
 
-#Error:  MissingSchema(error) requests.exceptions.MissingSchema: Invalid URL '/state/al/index.htm': No schemasupplied. Perhaps you meant http:///state/al/index.htm?
-#Solution: the error is in the requests part of the code. Add a line/path so that a url can be created and scrapped.
+    thor = all_obj.text
+    everything.append(thor)
+    list_of_abvstate = all_obj.find_all("h4")
+    # print(list_of_abvstate)
+    guardians = []
 
-# for something in topics_pages:
-#     print(something)
+    for loki in list_of_abvstate:
+        guardians = loki.text.split(",")
+    list_of_des = all_obj.find("p").text
+    list_of_pnames = all_obj.find("h3").text
+    list_of_lists = str(guardians) + list_of_des + list_of_pnames
+    # print(list_of_lists)
 
-# print(topics_pages[0].prettify())
-# print(type(topics_pages))# this is a list of beautifulsoup objects
 
-# all_stuff = []
+    for rocket in guardians:
+        if len(rocket) != 2:
+            continue
+    #
+    #
+    #     list_of_states = []
+    #     for value in some_states.split():##This give state abb.
+    #         if len(value) <= 2:
+    #             # if value =1
+    #             list_of_states.append(value)
+        # print(type(rocket))
+        # print(rocket)
+        benatar = []
+        benatar.append(list_of_pnames)
+        benatar.append(list_of_des)
+        benatar.append(rocket)
+        nowhere.append(benatar)
+
+
+
+
+
+
+with open("national_parks_info.csv","w", newline = "", encoding='UTF8') as csv_file:
+    writer = csv.writer(csv_file)
+    writer.writerow(["Name", "Description","States"])
+    for starlord in nowhere:
+        writer.writerow(starlord)
+
+######## END OF CAT CODE
+
 states = []
 
 for a_state in topics_pages:
     kinda_list_of_states = a_state.find("h1", {"class":"page-title"})# this works but just need the state names
-
     state_names = kinda_list_of_states.text #<class 'bs4.element.Tag'> ##This works
     # print(type(state_names))
     # print(states)
@@ -76,38 +112,26 @@ for a_state in topics_pages:
         # all_stuff.append(all_states)
     # print(type(states))
     # print(states)
-    # for each_state in states:
-    #     print(each_state)
-    # states = []
-    # for names_of_states in state_names:
-    #     states.append(names_of_states)
-    # print(states)
 
 state_list = []
 for state_elem in topics_pages:
     list_of_abv = state_elem.find_all("h4")
     for stuff in list_of_abv:
         some_states = stuff.text
-        # print(type(some_states))
-        # print(len(some_states.split()))
-        # print(some_states.split())
+
         list_of_states = []
-        for value in some_states.split():
+        for value in some_states.split():##This give state abb.
             if len(value) <= 2:
                 # if value =1
                 list_of_states.append(value)
                 # print(list_of_states) #THIS KINDA WORKS
+                # print(type(list_of_states))
                 # another_st_list = []
                 # def get_state_abv(list_of_states): #creating function to get only the abv of states
                 #     for st_list in list_of_states:
                 #         if len(st_list) == []:
                 #             another_st_list.append(st_list)
                 #         print(another_st_list)
-
-
-
-
-
 
 
 
@@ -155,6 +179,8 @@ p_d = []
 
 for a_description in topics_pages:
     # print(a_description.find("p")) #this works
+    # print(a_description)
+    # print(v)
     soup_descriptions = a_description.find("p")
     park_description = soup_descriptions ## works but still has a <p>
     # print(type(park_description))
@@ -165,18 +191,9 @@ for a_description in topics_pages:
 #     print(type(kinda_list_of_types))
         descrip = each_d
         p_d.append(descrip)
-        # print(p_d.ascii())
-        # p_d.append(descrip.split('\''))
-        # all_stuff.append(descrip)
-        # p_des = []
-        # for each_des in p_d:
-        #     a_des = (str(each_des))
-        #     # print(type(a_des))
-        #     print(a_des.split(","))
-            # p_des.append(a_des)
-            # print(a_des.split())
-            # p_des.append(each_des)
-            # print(p_des)
+
+        # print(p_d)
+
 
         # for a_p_d in p_d:
         #     print(type(a_p_d))
@@ -203,104 +220,309 @@ for a_name in topics_pages:
         elem_name = each_name.text
         names.append(elem_name)
         # all_stuff.append(elem_name)
+        # print(names)
 
-def get_park_info():
-    for item in get_park_info:
-        print(item)
-    get_park_info(names)
+        # print(kinda_list_of_types[0, each_elem])
+    # writer.writerow([nat_park_types,names, p_d, elem_types])
+    # for name_stuff in names:
+        # for each_pd in p_d:
+            # for each_types in nat_park_types:
+        # print(name_stuff)
 
-###WRITING INTO A CSV FILE
+
+####Work Space
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+####End of Work Space
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+# print(all_stuff)
+
+#
 # with open("national_parks_info.csv","w", newline = "", encoding='UTF8') as csv_file:
 #     writer = csv.writer(csv_file)
-# #     # writer.writerow(["Name", "State", "Description", "Type"])
-#     writer.writerow(["Name", "State,""Description"])
-# #
-#     for every_name in range(len(names)):
-#         if every_name not in range(len(names)):
-#             every_name = " n/a"
-#         else:
+#     writer.writerow(["Name", "Description","States"])
+#     for name in names:
+#         # for des in p_d:
+#         # print(name)
+#             writer.writerow([name, p_d, list_of_states])
 #
-#         # if every_name > len(p_d)-1:
-#         #     break
-#             writer.writerow([names[every_name],p_d[every_name], list_of_states[every_name]])
+#
+# with open("national_parks_des.csv","w", newline = "", encoding='UTF8') as csv_file:
+#     writer = csv.writer(csv_file)
+#     writer.writerow(["Name", "Description","States"])
+#     for des in p_d:
+#         # for scrip in des:
+#         # for des in p_d:
+#         # print(name)
+#             writer.writerow([names, des, list_of_states])
+#
+#     with open("national_parks_state.csv","w", newline = "", encoding='UTF8') as csv_file:
+#         writer = csv.writer(csv_file)
+#         writer.writerow(["Name", "Description","States"])
+#     # print(list_of_states)
+#         for state_thing in list_of_states:
+#             print(list_of_states)
+#         # for estate in state_thing:
+#         # for scrip in des:
+#         # for des in p_d:
+#         # print(name)
+#             writer.writerow([names, des, state_thing])
 
+####IGNORE STUFF BELLOW
+
+
+
+####Code not working
+###code kinda works but needs more
+# with open("national_parks_info.csv","w", newline = "", encoding='UTF8') as csv_file:
+#     writer = csv.writer(csv_file)
+#     # writer.writerow(["Name", "State", "Description", "Type"])
+#     writer.writerow(["Name", "Description","States"])
+#
+#     for every_name in range(len(names)):
+#         if every_name > len(p_d)-1:
+#             break
+#         elif every_name > len(list_of_states)-1:
+#             writer.writerow([names[every_name],p_d[every_name],list_of_states[every_name]])
+###Code doesn't work
+#
+# with open("national_parks_info.csv","w", newline = "", encoding='UTF8') as csv_file:
+#     writer = csv.writer(csv_file)
+#     writer.writerow(["Name", "State", "Description"])
+#     for thing in range(len(names)):
+#         if thing > len(names)-1:
+#             break
+#     writer.writerow([names[thing],p_d[thing]])
+
+    #     if thing
+    #
+    # for each_thing in all_things:
+    #     # print(each_thing)
+    #
+    #
+    #     # if thing not in all_things:
+    #     #     thing = "na"
+    #     # else:
+    #     #     print(thing[all_things])
+    # #     if state_des in p_d:
+    # #         # print(state_des)
+    # #         if many_state in list_of_states:
+    #     writer.writerow(each_thing)
+###Code###
+
+
+# with open("national_parks_state.csv","w", newline = "", encoding='UTF8') as csv_file:
+#     writer = csv.writer(csv_file)
+#     writer.writerow(["State"])
+#     for stuff in range(len(list_of_states)):
+#         print(stuff)
+#     # if an_item not in stuff:
+#         writer.writerow(stuff[list_of_states])
+
+        # print(stuff[list_of_states])
+    #     for allstuff in stuff:
+    #         print(allstuff)
+        # writer.writerow(stuff[list_of_states])
+###Code
+# with open("national_parks_info.csv","w", newline = "", encoding='UTF8') as csv_file:
+#     writer = csv.writer(csv_file)
+#     writer.writerow)(["Name", "State", "Description"])
+#     for name_st in range(len(names)):
+#         if name_st not < p_d:
+#     writer.writerow([names, p_d])
+    # list_of_states])
+
+
+###Code 1/
+#all_things = [names,list_of_states, p_d]
+# for each_thing in all_things:
+#     pass
+#     return each_thing
+# with open("national_parks_info.csv","w", newline = "", encoding='UTF8') as csv_file:
+#     writer = csv.writer(csv_file)
+#     writer.writerow(["Name", "State", "Description"])
+#     for thing in range(len(all_things)):
+#     #     if thing
+#
+#     # for each_thing in all_things:
+#         # print(each_thing)
+#
+#
+#         # if thing not in all_things:
+#         #     thing = "na"
+#         # else:
+#         #     print(thing[all_things])
+#     #     if state_des in p_d:
+#     #         # print(state_des)
+#     #         if many_state in list_of_states:
+#         writer.writerow([all_things])
+####Code 2
 
 # with open("national_parks_info.csv","w", newline = "", encoding='UTF8') as csv_file:
 #     writer = csv.writer(csv_file)
 #     writer.writerow(["Name", "State", "Description"])
-#     for each_npt in nat_park_types:
-#         print(each_npt)
-#         writer.writerow([each_npt])
+#     for name in range(len(names)):
+#         if state_des in p_d:
+#             # print(state_des)
+#             if many_state in list_of_states:
+#                 writer.writerow(name, state_des, many_state)
 
+
+###Code
+# with open("national_parks_info.csv","w", newline = "", encoding='UTF8') as csv_file:
+#     writer = csv.writer(csv_file)
+#     writer.writerow(["Name", "State", "Description"])
+#     for name in names:
+#         if name
+#         writer.writerow([names[name_stuff], list_of_states[name_stuff], p_d[name_stuff]])
+    # for each_name in names:
+    #     writer.writerow([names[each_name],list_of_states[each_name],p_d[each_name]])
+
+
+
+###Code
+
+# with open("national_parks_info.csv","w", newline = "", encoding='UTF8') as csv_file:
+#     writer = csv.writer(csv_file)
+#     # writer.writerow(["Name", "State", "Description", "Type"])
+#     writer.writerow(["Name", "Description"])#, "Location"])
+###Code
+
+# with open("national_parks_info.csv","w", newline = "", encoding='UTF8') as csv_file:
+#     writer = csv.writer(csv_file)
+#     writer.writerow(["Name", "State", "Description"])
+#     for each_name in names:
+#         if each_name > len(nat_park_types)-1:
+#             break
+#         writer.writerow([names[each_name],nat_park_types[each_name]])
+        # if each_name
+        # print(each_name)
+        # writer.writerow([each_name])
+
+###Code
+
+# with open("des_national_parks_info.csv","w", newline = "", encoding='UTF8') as csv_file:
+#     writer = csv.writer(csv_file)
+#     writer.writerow(["Name", "State", "Description"])
+#     for each_type in nat_park_types:
+#         # if each_name
+#         # print(each_dlist)
+#         writer.writerow([each_type])
+        #
+        # writer.writerow([each_npt],list_of_states[each_npt], p_d[each_npt])
+    # for each_dlist in p_d:
+    #     print(each_dlist)
+    #     writer.writerow([each_npt],list_of_states[each_npt], each_dlist[each_npt])
+
+###Code
+
+# with open("test_national_parks_info.csv","w", newline = "", encoding='UTF8') as csv_file:
+#     writer = csv.writer(csv_file)
+#     # writer.writerow(["Name", "State", "Description", "Type"])
+#     writer.writerow(["Name", "Description"])
+#
+#     for every_name in range(len(names)):
+#         if every_name > len(p_d)-1:
+#             pass
+#         if every_name < len(list_of_states)-1:
+#             pass
+#         writer.writerow([names[every_name],p_d[every_name],list_of_states[every_name]])
 
 
 
         # print(kinda_list_of_types[0, each_elem])
     # writer.writerow([nat_park_types,names, p_d, elem_types])
-    for name_stuff in names:
-        # for each_pd in p_d:
-            # for each_types in nat_park_types:
-        print(name_stuff)
+    # for name_stuff in names:
+    #     # for each_pd in p_d:
+    #         # for each_types in nat_park_types:
+    #     print(name_stuff)
     # for name_stuff in range(len(names)):
     #     if name_stuff != p_d:
     #         name_stuff = "n/a"
     #     else:
-    #         writer.writerow([names[name_stuff], list_of_states[name_stuff], p_d[name_stuff]])#, nat_park_types])
+#         writer.writerow([names[name_stuff], list_of_states[name_stuff], p_d[name_stuff]])#,
 
 
-        # if name_stuff in names > pd:
-        #     name_stuff = "n/a"
-        # else:
-        #     print(name_stuff)
-    # writer.writerow([names[name_stuff], list_of_states[name_stuff], p_d[name_stuff]])#, nat_park_types])
-
-                # writer.writerow([name_stuff, list_of_states, p_d])#, nat_park_types])
-
-            # writer.writerow([name_stuff, list_of_states, p_d])#, nat_park_types])
-        # for each_pd in p_d:
-        #     writer.writerow([name_stuff, states, p_d, nat_park_types])
-        #
-        #     for each_types in nat_park_types:
-        #         writer.writerow([name_stuff, states, p_d, nat_park_types])
-
-
-
-    # for state_names, elem_type, descrip, elem_name in all_stuff:
-    #     writer.writerow([state_names,elem_type, descrip, elem_name])
-
-
-    # for each_national_park in nat_park_types:
-    #     print(each_national_park)
-        # for a_park in each_national_park:
-        #     print(a_park)
-        # for every_name in names:
-        #     print(every_name)
-
-
-    # for each_descrip in p_d:
-        # print(each_descrip)
-        # writer.writerow([name_stuff, states, p_d, nat_park_types])
-
-    # for every_state in state_names:
-    #     print(every_state)
-
-
-
-        # writer.writerow([name_stuff, states, p_d, nat_park_types])
-
-# with open('some.csv', 'w') as f:
-#     writer = csv.writer(f)
-#     writer.writerows(zip(states, nat_park_types, p_d, names ))
-# #DID NOT WORK
-# rows = zip(states, nat_park_types, p_d, names)
-# with open("nat_parks.csv", "w") as f:
-#     writer = csv.writer(f)
-#     for row in rows:
-#         writer.writerow(row)
-#can write things into this file
-# a_file = open("info_about_parks.csv", "w")
-# a_file.write("Name,Type,Description, Location")
-# a_file.write([state_names, park_description, elem_name, elem_types])
-# # a_file.write([names, states, p_d, nat_park_types])
-#
-# a_file.write("\n")
+###Don't delete
+#     for every_name in range(len(names)):
+#         if every_name > len(p_d)-1:
+#             break
+# #         elif every_name < len(p_d)-1:
+# #             # every_name = "na"
+# #
+# #             # if every_name > len(list_of_states-1):
+# #             #     break
+#             writer.writerow([names[every_name],p_d[every_name]])#, list_of_states[every_name]])

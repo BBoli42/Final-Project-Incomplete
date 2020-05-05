@@ -22,11 +22,9 @@ class FinalProject(unittest.TestCase):
 
 	def test_input(self):
 		data = self.cur.fetchone(user_input)
-		self.assertEqual("testing that user enters a string"
+		self.assertEqual("testing that user enters a string")
 
-	def test_lowercase(self):
-		data = self.cur(fetchone(user_input))
-		self.assertEqual("testing that when user enters a value it turns into lowercase")
+
 
 
 
